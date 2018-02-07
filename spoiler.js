@@ -1,4 +1,4 @@
-const https = require('https')
+const http = require('http')
 const request = require('request')
 const cheerio = require('cheerio')
 const express = require('express')
@@ -8,11 +8,18 @@ const readLineSync = require('readline-sync')
 const app = express()
 const port = 8080
 
+app.get('/', (req, res) => {
+  res.send('Hello')
+})
+
 app.get('/movies', (req, res) => { // used to fetch JSON of searched movies through the terminal
-  fs.readFileSync('spoiled-movies.txt', function(err, data) {
+  fs.readFile('spoiled-movies.txt', function(err, data) { // MUST USE PROMISES
+    console.log('HTTP Request....')
+    console.log(err)
+
     let sliced = data.toString().substring(0, data.toString().length-2)
-    let newData = `{ "MoviesList" : [ ${sliced} ] }`;
-    res.send(JSON.parse(newData));
+    let newData = `{ "MoviesList" : [ ${sliced} ] }`
+    res.send(JSON.parse(newData))
     })
   })
   
@@ -198,7 +205,7 @@ var spoilerMachine = () => {
               function countdown() {
                 count--
                 console.log(`${count}...`)
-                if(count === 1) {
+                if(count < 1) {
                   clearInterval(counter)
                 }
               }
@@ -214,7 +221,8 @@ var spoilerMachine = () => {
     var printSpoiler = () => {
       console.log(`\nTMDb Plot:\n${movie.tmdbPlot}`)
       console.log(`\nIMDb Plot:\n${movie.imdbPlot}`)
-      fs.appendFileSync('spoiled-movies.txt', `{ "name": "${movie.name}", "release": "${movie.release}" },\n`, function(err) {
+      fs.appendFile('spoiled-movies.txt', `{ "name": "${movie.name}", "release": "${movie.release}" },\n`, function(err) {
+
         if (err) throw err
         //console.log('Saved!');
       });
